@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h3> Hi, user! </h3>
+    {% if message_list %}
+    {% else %}
+        You don't have any messages yet.
+    {% endif %}
+{% endblock %}
