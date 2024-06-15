@@ -1,0 +1,111 @@
+
+
+services:
+
+  db:
+    container_name: db
+    image: postgres:latest
+    restart: on-failure
+    volumes:
+      - db-data:/var/lib/postgresql/data/
+    networks:
+      - webnet
+    expose:
+      - 5432
+    env_file:
+      - .env
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DATABASE}
+
+
+  web:
+    container_name: web
+    env_file:
+      - .env
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    expose:
+      - 8000
+    networks:
+      - webnet
+      - nginx_network
+    depends_on:
+      - db
+
+
+  nginx:
+    container_name: nginx
+    build:
+      context: .
+      dockerfile: ./docker/nginx/Dockerfile
+    restart: on-failure
+    networks:
+      - nginx_network
+    ports:
+      - "80:80"
+    depends_on:
+      - web
+
+
+  redis:
+    image: redis:7.2-alpine
+    container_name: redis
+    expose:
+      - "6379"
+    volumes:
+      - redis-data:/var/lib/redis/data
+    networks:
+      - webnet
+
+  rabbitmq:
+    image: rabbitmq:3.13-alpine
+    container_name: rabbitmq
+    environment:
+      - RABBITMQ_DEFAULT_USER=admin
+      - RABBITMQ_DEFAULT_PASS=admin
+    expose:
+      - "5672"
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - webnet
+
+  celery:
+    build:
+      context: .
+    command: celery -A core worker --loglevel=info
+    volumes:
+      - .:/app
+    env_file:
+      - .env
+    entrypoint: [""]
+    depends_on:
+      - web
+      - redis
+      - rabbitmq
+    networks:
+      - webnet
+
+  pgadmin:
+    container_name: pgadmin
+    image: dpage/pgadmin4:latest
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=admin@mankret.com
+      - PGADMIN_DEFAULT_PASSWORD=admin
+    ports:
+      - "8080:80"
+    networks:
+      - nginx_network
+      - webnet
+
+networks:
+  webnet:
+  nginx_network:
+
+volumes:
+  db-data:
+  redis-data:
+  rabbitmq_data:

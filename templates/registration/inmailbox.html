@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+{% load static %}
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>User Dashboard</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                display: flex;
+            }
+            #menu {
+                width: 200px;
+                border-right: 1px solid #ccc;
+                padding: 20px;
+            }
+            #menu ul {
+                list-style-type: none;
+                padding: 0;
+            }
+            #menu ul li {
+                margin-bottom: 10px;
+            }
+            #menu ul li a {
+                text-decoration: none;
+                color: #000;
+            }
+            #content {
+                flex: 1;
+                padding: 20px;
+            }
+            .section {
+                display: none;
+            }
+            .section.active {
+                display: block;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="menu">
+            <ul>
+                <li><a href="#" onclick="showSection('inbox')">Вхідні</a></li>
+                <li><a href="#" onclick="showSection('sent')">Відправлені</a></li>
+                <li><a href="{% url 'send_message' %}" onclick="showSection('send_mail')">Написати лист</a></li>
+            </ul>
+        </div>
+        <div id="content">
+            <div id="inbox" class="section active">
+                <h2>Вхідні листи</h2>
+                <div class="inbox-messages">
+                    {% if inbox_messages %}
+                        <div id="message-list">
+                            {% for message in inbox_messages %}
+                                <div class="message" data-id="{{ message.pk }}" onclick="showMessageDetails({{ message.pk }})">
+                                    <span class="from-who">{{ message.from_who }}</span>
+                                    <span class="subject">{{ message.subject }}</span>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p>No messages found.</p>
+                    {% endif %}
+                </div>
+                <div id="message-details" style="display:none;">
+                    <button onclick="hideMessageDetails()">Back to Inbox</button>
+                    <div id="message-content"></div>
+                </div>
+            </div>
+            <div id="sent" class="section">
+                <h2>Відправлені листи</h2>
+                <div>
+                    {% if sent_messages %}
+                        {% for message in sent_messages %}
+                            <div class="message">
+                                <h3>{{ message.subject }}</h3>
+                                <p>{{ message.body }}</p>
+                                <p><small>До: {{ message.to_whom }}</small></p>
+                                <p><small>Відправлено: {{ message.timestamp }}</small></p>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <p>Ви не маєте відправлених листів.</p>
+                    {% endif %}
+                </div>
+            </div>
+            <div id="send_mail" class="section">
+                <h2>Написати лист</h2>
+                <p>Тут будуть відображатися ваші відправлені листи.</p>
+            </div>
+        </div>
+
+        <script>
+            function showSection(sectionId) {
+                var sections = document.querySelectorAll('.section');
+                sections.forEach(function(section) {
+                    section.classList.remove('active');
+                });
+                document.getElementById(sectionId).classList.add('active');
+            }
+        </script>
+        <script src="{% static 'js/script.js' %}"></script>
+    </body>
+</html>

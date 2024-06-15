@@ -1,0 +1,16 @@
+.inbox-messages .message {
+    display: flex;
+    justify-content: space-between; /* Дозволяє розмістити елементи з відступом між ними */
+    align-items: center; /* Вирівнює елементи по вертикалі */
+    padding: 10px;
+    border-bottom: 1px solid #ccc;
+}
+
+.inbox-messages .from-who {
+    font-weight: bold;
+    margin-right: 20px; /* Відступ між відправником і темою */
+}
+
+.inbox-messages .subject {
+    flex-grow: 1; /* Займає доступний простір */
+}

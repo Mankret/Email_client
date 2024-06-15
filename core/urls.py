@@ -23,4 +23,6 @@ urlpatterns = [
     path('mail/', include("email_client.urls")),
     path("accounts/", include("django.contrib.auth.urls")),
     path("accounts/registration/", RegisterFormView.as_view(), name="registration"),
+
+    path("__debug__/", include("debug_toolbar.urls")),
 ]
